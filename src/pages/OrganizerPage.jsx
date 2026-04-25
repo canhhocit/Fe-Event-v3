@@ -19,7 +19,7 @@ export default function OrganizerPage() {
   const [eventTicketTypes, setEventTicketTypes] = useState([]);
 
   const [eventFormData, setEventFormData] = useState({
-    name: "", categoryId: "", location: "", startTime: "", endTime: "",
+    name: "", categoryId: "", province: "", location: "", startTime: "", endTime: "",
     saleStartDate: "", saleEndDate: "", description: "", files: null,
     ticketTypes: [{ name: "Vé thường", price: "", totalQuantity: "", description: "" }]
   });
@@ -110,7 +110,7 @@ export default function OrganizerPage() {
       await api.post("/events", data);
       alert("Đăng ký sự kiện & vé thành công! Hãy kiên nhẫn chờ Admin duyệt.");
       setEventFormData({
-        name: "", categoryId: "", location: "", startTime: "", endTime: "",
+        name: "", categoryId: "", province: "", location: "", startTime: "", endTime: "",
         saleStartDate: "", saleEndDate: "", description: "", files: null,
         ticketTypes: [{ name: "Vé thường", price: "", totalQuantity: "", description: "" }]
       });

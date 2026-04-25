@@ -1,5 +1,11 @@
 import React from "react";
 
+const VIETNAM_PROVINCES = [
+  "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", 
+  "Bình Dương", "Đồng Nai", "Quảng Ninh", "Khánh Hòa", "Lâm Đồng", 
+  "Thừa Thiên Huế", "Bà Rịa - Vũng Tàu", "Đắk Lắk", "An Giang", "Tiền Giang"
+];
+
 export default function CreateEventForm({ 
   formData, handleChange, handleSubmit, categories, loading,
   handleAddTicketType, handleRemoveTicketType, handleTicketFieldChange 
@@ -26,8 +32,16 @@ export default function CreateEventForm({
           </div>
           
           <div className="col-md-6">
-            <label className="form-label small fw-bold text-muted text-uppercase">Địa điểm tổ chức</label>
-            <input type="text" name="location" className="form-control form-control-lg bg-light border-0" required value={formData.location} onChange={handleChange} placeholder="Địa chỉ cụ thể nơi diễn ra" />
+            <label className="form-label small fw-bold text-muted text-uppercase">Tỉnh / Thành phố</label>
+            <select name="province" className="form-select form-select-lg bg-light border-0 shadow-none text-muted" required value={formData.province} onChange={handleChange}>
+              <option value="">Chọn địa điểm</option>
+              {VIETNAM_PROVINCES.map(p => <option key={p} value={p} className="text-dark">{p}</option>)}
+            </select>
+          </div>
+          
+          <div className="col-md-6">
+            <label className="form-label small fw-bold text-muted text-uppercase">Địa chỉ cụ thể</label>
+            <input type="text" name="location" className="form-control form-control-lg bg-light border-0" required value={formData.location} onChange={handleChange} placeholder="Số nhà, tên đường..." />
           </div>
 
           {/* Lịch bán vé */}
