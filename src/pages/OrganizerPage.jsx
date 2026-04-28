@@ -7,6 +7,7 @@ import CreateEventForm from "../components/organizer/CreateEventForm";
 import TicketManager from "../components/organizer/TicketManager";
 import OrganizerProfile from "../components/organizer/OrganizerProfile";
 import StaffManager from "../components/organizer/StaffManager";
+import VoucherManager from "../components/organizer/VoucherManager";
 
 export default function OrganizerPage() {
   const api = useApi();
@@ -194,6 +195,10 @@ export default function OrganizerPage() {
 
           {activeTab === "staff" && (
             <StaffManager api={api} />
+          )}
+
+          {activeTab === "vouchers" && (
+            <VoucherManager api={api} events={myEvents} />
           )}
 
           {activeTab === "profile" && (

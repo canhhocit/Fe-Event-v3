@@ -1,3 +1,5 @@
+export const COMMISSION_RATE = 0.25;
+
 // Format tiền VNĐ
 export const VND = (n) =>
   n == null

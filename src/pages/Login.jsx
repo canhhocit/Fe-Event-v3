@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { API_BASE } from "../utils/api";
 
-const API_URL = `${API_BASE}/api/v1/auth/login`;
+const API_URL = `${API_BASE}/auth/login`;
 
 export default function Login() {
   const { login } = useAuth();

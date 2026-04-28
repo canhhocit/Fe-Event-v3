@@ -55,6 +55,28 @@ export default function StaffManager({ api }) {
     }
   };
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({
+    username: "", password: "", email: "", fullName: "", phone: "", role: "STAFF"
+  });
+  const [addLoading, setAddLoading] = useState(false);
+
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+    try {
+      await api.post("/users/organizer/staff", addForm);
+      alert("Đã tạo nhân viên thành công! Vui lòng yêu cầu nhân viên check email để xác thực.");
+      setShowAddModal(false);
+      setAddForm({ username: "", password: "", email: "", fullName: "", phone: "", role: "STAFF" });
+      setRefetch((n) => n + 1);
+    } catch (err) {
+      alert("Lỗi khi thêm nhân viên: " + (err.message || "Kiểm tra lại dữ liệu"));
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="mb-4 d-flex justify-content-between align-items-end">
@@ -64,12 +86,20 @@ export default function StaffManager({ api }) {
             Danh sách nhân viên soát vé thuộc ban tổ chức của bạn.
           </p>
         </div>
-        <button
-          className="btn btn-sm btn-outline-secondary rounded-pill px-4 fw-bold"
-          onClick={() => setRefetch((n) => n + 1)}
-        >
-          Làm mới ↻
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-sm btn-primary rounded-pill px-4 fw-bold"
+            onClick={() => setShowAddModal(true)}
+          >
+            + Thêm Nhân Viên
+          </button>
+          <button
+            className="btn btn-sm btn-outline-secondary rounded-pill px-4 fw-bold"
+            onClick={() => setRefetch((n) => n + 1)}
+          >
+            Làm mới ↻
+          </button>
+        </div>
       </div>
 
       <div className="card border-0 shadow-sm" style={{ borderRadius: "16px", overflow: "hidden" }}>
@@ -94,8 +124,7 @@ export default function StaffManager({ api }) {
               ) : staffList.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="text-center py-5 text-muted border-0">
-                    <div className="mb-2" style={{ fontSize: "2rem" }}>👥</div>
-                    Chưa có nhân viên nào. Hãy tạo tài khoản Staff qua mục Xác thực.
+                    Chưa có nhân viên nào. Hãy thêm nhân viên để hỗ trợ check-in sự kiện.
                   </td>
                 </tr>
               ) : (
@@ -115,7 +144,7 @@ export default function StaffManager({ api }) {
                       {s.enabled ? (
                         <span className="badge bg-success-subtle text-success">Hoạt động</span>
                       ) : (
-                        <span className="badge bg-danger-subtle text-danger">Đã khóa</span>
+                        <span className="badge bg-danger-subtle text-danger">Đã khóa / Chưa XT</span>
                       )}
                     </td>
                     <td className="border-0 text-end px-4">
@@ -158,6 +187,55 @@ export default function StaffManager({ api }) {
           </div>
         )}
       </div>
+
+      {showAddModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow" style={{ borderRadius: '16px' }}>
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title fw-bold">Thêm Nhân viên Mới</h5>
+                <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleAddSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label small fw-bold text-secondary">Tên đăng nhập *</label>
+                    <input type="text" className="form-control form-control-sm" required
+                      value={addForm.username} onChange={e => setAddForm({ ...addForm, username: e.target.value })} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label small fw-bold text-secondary">Mật khẩu *</label>
+                    <input type="text" className="form-control form-control-sm" required minLength="6"
+                      value={addForm.password} onChange={e => setAddForm({ ...addForm, password: e.target.value })} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label small fw-bold text-secondary">Email *</label>
+                    <input type="email" className="form-control form-control-sm" required
+                      value={addForm.email} onChange={e => setAddForm({ ...addForm, email: e.target.value })} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label small fw-bold text-secondary">Họ và Tên *</label>
+                    <input type="text" className="form-control form-control-sm" required
+                      value={addForm.fullName} onChange={e => setAddForm({ ...addForm, fullName: e.target.value })} />
+                  </div>
+                  <div className="mb-4">
+                    <label className="form-label small fw-bold text-secondary">Số điện thoại</label>
+                    <input type="text" className="form-control form-control-sm"
+                      value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: e.target.value })} />
+                  </div>
+                  
+                  <div className="d-flex gap-2 justify-content-end">
+                    <button type="button" className="btn btn-light" onClick={() => setShowAddModal(false)}>Hủy</button>
+                    <button type="submit" className="btn btn-primary px-4" disabled={addLoading}>
+                      {addLoading ? "Đang xử lý..." : "Tạo tài khoản"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,15 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const VIETNAM_PROVINCES = [
-  "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", 
-  "Bình Dương", "Đồng Nai", "Quảng Ninh", "Khánh Hòa", "Lâm Đồng", 
-  "Thừa Thiên Huế", "Bà Rịa - Vũng Tàu", "Đắk Lắk", "An Giang", "Tiền Giang"
+  "Hà Nội",
+  "Hải Phòng",
+  "Quảng Ninh",
+  "Ninh Bình",
+  "Lào Cai",
+  "Điện Biên",
+
+  "Thanh Hóa",
+  "Nghệ An",
+  "Huế",
+  "Đà Nẵng",
+  "Quảng Nam",
+  "Khánh Hòa",
+  "Lâm Đồng",
+
+  "TP. Hồ Chí Minh",
+  "Bình Dương",
+  "Đồng Nai",
+  "Bà Rịa - Vũng Tàu",
+  "Cần Thơ",
+  "An Giang",
+  "Kiên Giang",
+  "Cà Mau"
 ];
 
 export default function CreateEventForm({ 
   formData, handleChange, handleSubmit, categories, loading,
   handleAddTicketType, handleRemoveTicketType, handleTicketFieldChange 
 }) {
+  const [imagePreviews, setImagePreviews] = useState([]);
+
+  useEffect(() => {
+    if (formData.files && formData.files.length > 0) {
+      const previews = [];
+      for (let i = 0; i < formData.files.length; i++) {
+        previews.push(URL.createObjectURL(formData.files[i]));
+      }
+      setImagePreviews(previews);
+      return () => previews.forEach(url => URL.revokeObjectURL(url));
+    } else {
+      setImagePreviews([]);
+    }
+  }, [formData.files]);
+
   return (
     <div className="card border-0 shadow-sm p-4 col-xl-10 mx-auto animate__animated animate__fadeIn" style={{ borderRadius: '24px' }}>
       <div className="d-flex align-items-center gap-3 mb-4">
@@ -18,11 +53,11 @@ export default function CreateEventForm({
       
       <form onSubmit={handleSubmit}>
         <div className="row g-4">
-          <div className="col-12">
+          {/* Tên sự kiện + Danh mục cùng hàng */}
+          <div className="col-md-6">
             <label className="form-label small fw-bold text-muted text-uppercase">Tên sự kiện</label>
             <input type="text" name="name" className="form-control form-control-lg bg-light border-0" required value={formData.name} onChange={handleChange} placeholder="Ví dụ: Đêm ca nhạc Chillies" />
           </div>
-          
           <div className="col-md-6">
             <label className="form-label small fw-bold text-muted text-uppercase">Danh mục</label>
             <select name="categoryId" className="form-select form-select-lg bg-light border-0 shadow-none text-muted" required value={formData.categoryId} onChange={handleChange}>
@@ -31,6 +66,7 @@ export default function CreateEventForm({
             </select>
           </div>
           
+          {/* Tỉnh/TP + Địa chỉ */}
           <div className="col-md-6">
             <label className="form-label small fw-bold text-muted text-uppercase">Tỉnh / Thành phố</label>
             <select name="province" className="form-select form-select-lg bg-light border-0 shadow-none text-muted" required value={formData.province} onChange={handleChange}>
@@ -38,7 +74,6 @@ export default function CreateEventForm({
               {VIETNAM_PROVINCES.map(p => <option key={p} value={p} className="text-dark">{p}</option>)}
             </select>
           </div>
-          
           <div className="col-md-6">
             <label className="form-label small fw-bold text-muted text-uppercase">Địa chỉ cụ thể</label>
             <input type="text" name="location" className="form-control form-control-lg bg-light border-0" required value={formData.location} onChange={handleChange} placeholder="Số nhà, tên đường..." />
@@ -58,7 +93,7 @@ export default function CreateEventForm({
             </div>
           </div>
 
-          {/* Lịch diễn ra sự kiện */}
+          {/* Lịch diễn ra sự kiện  */}
           <div className="col-md-6">
             <div className="p-3 bg-light rounded-4 border">
               <label className="form-label small fw-bold text-secondary text-uppercase mb-2">Thời gian diễn ra</label>
@@ -72,12 +107,22 @@ export default function CreateEventForm({
             </div>
           </div>
           
+          {/* Ảnh mô tả + xem trước */}
           <div className="col-12">
-            <label className="form-label small fw-bold text-muted text-uppercase">Ảnh mô tả</label>
-            <div className="p-2 bg-light rounded-3 border border-dashed text-center">
-                <input type="file" name="files" multiple className="form-control bg-transparent border-0 shadow-none mt-1" onChange={handleChange} accept="image/*" />
-                {/* <small className="text-muted small mt-2 d-block">Có thể chọn nhiều tệp (.jpg, .png)</small> */}
+            <label className="form-label small fw-bold text-muted text-uppercase">Ảnh mô tả sự kiện</label>
+            <div className="p-3 bg-light rounded-4 border border-dashed text-center">
+                <input type="file" name="files" multiple className="form-control bg-transparent border-0 shadow-none" onChange={handleChange} accept="image/*" />
             </div>
+            {imagePreviews.length > 0 && (
+              <div className="d-flex flex-wrap gap-3 mt-3">
+                {imagePreviews.map((src, i) => (
+                  <div key={i} className="position-relative" style={{ width: 120, height: 90 }}>
+                    <img src={src} alt={`Preview ${i + 1}`} className="rounded-3 shadow-sm" style={{ width: '100%', height: '100%', objectFit: 'cover', border: '2px solid #e0e0e0' }} />
+                    <span className="position-absolute top-0 start-0 badge bg-dark bg-opacity-75 rounded-pill m-1" style={{ fontSize: '0.65rem' }}>{i + 1}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="col-12">

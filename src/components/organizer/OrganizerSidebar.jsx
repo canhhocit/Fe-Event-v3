@@ -5,6 +5,7 @@ export default function OrganizerSidebar({ activeTab, setActiveTab }) {
     { id: "dashboard", icon: "📊", label: "Thống kê" },
     { id: "events", icon: "🎫", label: "Sự kiện của tôi" },
     { id: "create", icon: "📅", label: "Đăng sự kiện" },
+    { id: "vouchers", icon: "🎟️", label: "Mã giảm giá" },
     { id: "staff", icon: "👷", label: "Quản lý Nhân viên" },
     { id: "profile", icon: "👤", label: "Thông tin cá nhân" },
   ];

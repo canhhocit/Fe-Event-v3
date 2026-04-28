@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { VND, StatusBadge } from "../../utils/helpers";
+import { VND, StatusBadge, COMMISSION_RATE } from "../../utils/helpers";
 import { getImageUrl } from "../../hooks/useApi";
 import Chart from 'chart.js/auto';
 
@@ -71,7 +71,7 @@ export default function OrganizerDashboard({ stats, profile }) {
                 <small className="fw-bold text-uppercase opacity-75">Thực nhận (Net)</small>
                 {/* <span className="fs-3">💵</span> */}
             </div>
-            <h2 className="fw-bold mt-2">{VND(stats.totalRevenue - stats.totalRevenue * 0.25)}</h2>
+            <h2 className="fw-bold mt-2">{VND(stats.totalRevenue - stats.totalRevenue * COMMISSION_RATE)}</h2>
           </div>
         </div>
         <div className="col-md-3">
@@ -99,7 +99,7 @@ export default function OrganizerDashboard({ stats, profile }) {
                 <small className="fw-bold text-uppercase opacity-50">Phí dịch vụ</small>
                 {/* <span className="fs-3">💎</span> */}
             </div>
-            <h2 className="fw-bold text-center mt-2">{VND(stats.totalRevenue * 0.25)}</h2>
+            <h2 className="fw-bold text-center mt-2">{VND(stats.totalRevenue * COMMISSION_RATE)}</h2>
           </div>
         </div>
       </div>

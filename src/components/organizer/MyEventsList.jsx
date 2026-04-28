@@ -30,10 +30,10 @@ export default function MyEventsList({ myEvents, openTicketManager }) {
             </div>
 
             {/* Event Name & Info */}
-            <div className="p-4 d-flex flex-column h-100">
+            <div className="p-4 d-flex flex-column h-80">
               <h5 className="fw-bold mb-2 flex-grow-1">{event.name}</h5>
               
-              <div className="mt-2 mb-3 p-2 bg-light rounded-3" style={{ fontSize: '11px' }}>
+              <div className="mt-1 mb-1 p-2 bg-light rounded-3" style={{ fontSize: '11px' }}>
                 <div className="d-flex justify-content-between mb-1">
                   <span className="text-secondary">Bán vé:</span>
                   <span className="fw-medium">{formatDate(event.saleStartDate)} - {formatDate(event.saleEndDate)}</span>
@@ -44,7 +44,7 @@ export default function MyEventsList({ myEvents, openTicketManager }) {
                 </div>
               </div>
               
-              <div className="small text-secondary mb-3 d-flex align-items-center gap-2">
+              <div className="small text-secondary mb-2 d-flex align-items-center gap-2">
                  <span>📍</span> {event.location}
               </div>
 

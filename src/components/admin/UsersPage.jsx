@@ -120,7 +120,7 @@ export default function UsersPage({ api }) {
                 value={roleFilter}
                 onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
               >
-                <option value="">Tất cả (Customer + Organizer)</option>
+                <option value="">Tất cả </option>
                 <option value="CUSTOMER">Khách hàng</option>
                 <option value="ORGANIZER">Ban tổ chức</option>
               </select>

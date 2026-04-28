@@ -87,6 +87,9 @@ export default function StatisticsPage({ api }) {
 
         // Sales Chart
         if (salesChartRef.current) {
+          const existingSalesChart = Chart.getChart(salesChartRef.current);
+          if (existingSalesChart) existingSalesChart.destroy();
+
           salesChart = new Chart(salesChartRef.current, {
             type: 'line',
             data: {
@@ -157,6 +160,9 @@ export default function StatisticsPage({ api }) {
 
         // bd tron
         if (categoryChartRef.current) {
+          const existingCategoryChart = Chart.getChart(categoryChartRef.current);
+          if (existingCategoryChart) existingCategoryChart.destroy();
+
           categoryChart = new Chart(categoryChartRef.current, {
             type: 'doughnut',
             data: {

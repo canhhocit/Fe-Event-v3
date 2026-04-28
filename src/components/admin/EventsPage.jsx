@@ -396,8 +396,8 @@ export default function EventsPage({ api }) {
             </div>
           ) : events.length === 0 ? (
             <div className="text-center py-5">
-               <span style={{ fontSize: '48px' }}>....</span>
-               <p className="mt-3 text-muted">Không tìm thấy sự kiện nào khớp với bộ lọc.</p>
+               <span style={{ fontSize: '48px' }}>...</span>
+               <p className="mt-3 text-muted">Chưa có sự kiện</p>
             </div>
           ) : (
             <div className="row g-4 transition-all">

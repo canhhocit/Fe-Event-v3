@@ -1,12 +1,13 @@
 import api from "../api/api";
 
 export const useApi = () => {
-  const get = (url, params) => api.get(url, { params });
-  const post = (url, data) => api.post(url, data);
-  const put = (url, data) => api.put(url, data);
-  const del = (url) => api.delete(url);
+  const get = (url, params) => api.get(url, { params }).then(res => res.data);
+  const post = (url, data) => api.post(url, data).then(res => res.data);
+  const put = (url, data) => api.put(url, data).then(res => res.data);
+  const patch = (url, data) => api.patch(url, data).then(res => res.data);
+  const del = (url) => api.delete(url).then(res => res.data);
 
-  return { get, post, put, del };
+  return { get, post, put, patch, del };
 };
 
 export const getImageUrl = (path) => {

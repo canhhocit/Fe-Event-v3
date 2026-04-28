@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
-import { StatusBadge } from "../../utils/helpers";
+import { StatusBadge, COMMISSION_RATE } from "../../utils/helpers";
 import StatCards from "./StatCards";
 
 export default function DashboardPage({ api }) {
@@ -34,7 +34,7 @@ export default function DashboardPage({ api }) {
 
         const [evRes, usRes] = await Promise.all([
           api.get("/events/admin/all?size=1000"),
-          api.get("/users?page=1&size=1000"),
+          api.get("/users/admin?page=1&size=1000"),
         ]);
 
         const evList = evRes.result?.content ?? [];
@@ -56,7 +56,7 @@ export default function DashboardPage({ api }) {
             totalQty += (Number(tt.totalQuantity) || 0);
           });
 
-          const commission = eventRev * 0.25;
+          const commission = eventRev * COMMISSION_RATE;
           totalCommission += commission;
           totalSold += eventSold;
 
@@ -85,6 +85,9 @@ export default function DashboardPage({ api }) {
 
         // Sales Chart
         if (salesChartRef.current) {
+          const existingSalesChart = Chart.getChart(salesChartRef.current);
+          if (existingSalesChart) existingSalesChart.destroy();
+          
           salesChart = new Chart(salesChartRef.current, {
             type: 'line',
             data: {
@@ -123,6 +126,9 @@ export default function DashboardPage({ api }) {
         }, {});
 
         if (categoryChartRef.current) {
+          const existingCategoryChart = Chart.getChart(categoryChartRef.current);
+          if (existingCategoryChart) existingCategoryChart.destroy();
+
           categoryChart = new Chart(categoryChartRef.current, {
             type: 'doughnut',
             data: {
@@ -194,7 +200,7 @@ export default function DashboardPage({ api }) {
                 <th className="px-4 py-3 border-0">Sự kiện</th>
                 <th className="border-0">Vé đã bán</th>
                 <th className="border-0">Tỷ lệ lấp chỗ</th>
-                <th className="border-0">Hoa hồng (25%)</th>
+                <th className="border-0">Hoa hồng ({COMMISSION_RATE * 100}%)</th>
                 <th className="border-0 text-center">Trạng thái</th>
               </tr>
             </thead>
@@ -218,7 +224,7 @@ export default function DashboardPage({ api }) {
                         <span className="small fw-bold">{percent}%</span>
                       </div>
                     </td>
-                    <td className="border-0 fw-bold">{(ev.totalRevenue * 0.25).toLocaleString()}đ</td>
+                    <td className="border-0 fw-bold">{(ev.totalRevenue * COMMISSION_RATE).toLocaleString()}đ</td>
                     <td className="text-center border-0">
                       <StatusBadge status={ev.status} />
                     </td>
