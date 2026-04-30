@@ -99,43 +99,6 @@ export default function Sidebar({ active, onSelect, onProfileClick }) {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-top bg-light-subtle mt-auto">
-        {open && (
-          <div
-            className="d-flex align-items-center gap-2 mb-3 px-2 cursor-pointer transition-all hover-bg-light rounded-3 p-1"
-            style={{ cursor: "pointer" }}
-            onClick={onProfileClick}
-          >
-            <div
-              className="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold shadow-sm"
-              style={{ width: 34, height: 34, fontSize: 13 }}
-            >
-              A
-            </div>
-            <div className="overflow-hidden">
-              <div className="small fw-bold text-dark text-truncate">
-                {user?.sub ?? "Administrator"}
-              </div>
-              <div className="text-secondary" style={{ fontSize: 10 }}>
-                Admin Profile
-              </div>
-            </div>
-          </div>
-        )}
-        <button
-          className={`btn btn-outline-danger border-2 ${open ? "w-100" : "w-100 rounded-circle p-2"}`}
-          onClick={handleLogout}
-          style={{
-            borderRadius: open ? 10 : "50%",
-            fontSize: 13,
-            fontWeight: 600,
-          }}
-          title="Đăng xuất"
-        >
-          {open ? "Đăng xuất" : "✕"}
-        </button>
-      </div>
     </div>
   );
 }
