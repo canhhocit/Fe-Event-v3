@@ -114,37 +114,15 @@ export default function DashboardPage({ api }) {
     total: 0,
   });
   const [userLoading, setUserLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState("users");
+  const [revenueLoading, setRevenueLoading] = useState(false);
+  const [revenueData, setRevenueData] = useState({ totalRevenue: 0, monthlyRevenues: [] });
+  const [activeSection, setActiveSection] = useState("events");
 
   useEffect(() => {
-    let salesChart = null;
-
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [revenueRes, topEventsRes] = await Promise.all([
-          apiRef.current.get(
-            `/statistics-service-revenue/admin/${selectedYear}`,
-          ),
-          apiRef.current.get(TOP_EVENTS_API_URL),
-        ]);
-
-        const revenueData = revenueRes.result ?? revenueRes ?? {};
-        const monthlyRevenues = revenueData.monthlyRevenues ?? [];
-
-        // Build month labels and extract revenue data
-        const monthLabels = [];
-        const monthlyRevenueData = [];
-
-        for (let month = 1; month <= 12; month++) {
-          monthLabels.push(`Th.${month}`);
-          const monthData = monthlyRevenues.find(
-            (m) => m.month === month && m.year === selectedYear,
-          );
-          monthlyRevenueData.push(
-            monthData ? Number(monthData.revenue) / 1000000 : 0,
-          );
-        }
+        const topEventsRes = await apiRef.current.get(TOP_EVENTS_API_URL);
 
         const topEventsPayload = topEventsRes?.result ?? topEventsRes ?? {};
         const topEventsList = Array.isArray(topEventsPayload?.events)
@@ -162,20 +140,42 @@ export default function DashboardPage({ api }) {
           quarter: topEventsPayload?.quarter ?? "",
           year: topEventsPayload?.year ?? "",
         });
+      } catch (err) {
+        console.error("Dashboard error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        // Sales Chart
+    fetchData();
+  }, [activeSection]);
+
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      setRevenueLoading(true);
+      try {
+        const res = await apiRef.current.get(`/statistics-service-revenue/admin/${selectedYear}`);
+        const data = res.result ?? res ?? {};
+        setRevenueData({
+          totalRevenue: data.totalRevenue || 0,
+          monthlyRevenues: data.monthlyRevenues || []
+        });
+
         if (salesChartRef.current) {
           const existingSalesChart = Chart.getChart(salesChartRef.current);
           if (existingSalesChart) existingSalesChart.destroy();
 
-          salesChart = new Chart(salesChartRef.current, {
+          const labels = (data.monthlyRevenues || []).map(m => `Th.${m.month}`);
+          const profitData = (data.monthlyRevenues || []).map(m => Number(m.revenue) / 1000000);
+
+          new Chart(salesChartRef.current, {
             type: "line",
             data: {
-              labels: monthLabels,
+              labels,
               datasets: [
                 {
-                  label: "Doanh thu dịch vụ nền tảng",
-                  data: monthlyRevenueData,
+                  label: "Lợi nhuận (triệu VNĐ)",
+                  data: profitData,
                   borderColor: "#0984e3",
                   backgroundColor: "rgba(9, 132, 227, 0.15)",
                   fill: true,
@@ -192,41 +192,7 @@ export default function DashboardPage({ api }) {
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: (context) => {
-                      const currentValue = context.parsed.y;
-                      return `Doanh thu: ${currentValue.toFixed(2)}M VNĐ`;
-                    },
-                    afterLabel: (context) => {
-                      const currentIndex = context.dataIndex;
-
-                      // Get previous month value
-                      const previousValue =
-                        currentIndex > 0
-                          ? context.chart.data.datasets[0].data[
-                              currentIndex - 1
-                            ]
-                          : null;
-
-                      // Calculate percentage change if previous value exists
-                      if (previousValue !== null && previousValue > 0) {
-                        const currentValue = context.parsed.y;
-                        const percentChange =
-                          ((currentValue - previousValue) / previousValue) *
-                          100;
-                        const trend = percentChange >= 0 ? "📈" : "📉";
-                        const sign = percentChange >= 0 ? "+" : "";
-                        return `${trend} ${sign}${percentChange.toFixed(1)}% so với tháng trước`;
-                      }
-
-                      return "";
-                    },
-                  },
-                },
-              },
+              plugins: { legend: { display: false } },
               scales: {
                 y: {
                   beginAtZero: true,
@@ -238,16 +204,15 @@ export default function DashboardPage({ api }) {
           });
         }
       } catch (err) {
-        console.error("Dashboard error:", err);
+        console.error("Revenue stats error:", err);
       } finally {
-        setLoading(false);
+        setRevenueLoading(false);
       }
     };
 
-    fetchData();
-    return () => {
-      if (salesChart) salesChart.destroy();
-    };
+    if (activeSection === "revenue") {
+      fetchRevenueData();
+    }
   }, [selectedYear, activeSection]);
 
   useEffect(() => {
@@ -520,23 +485,7 @@ export default function DashboardPage({ api }) {
           .dashboard-section-buttons .section-btn.inactive{background:#fff}
         `}</style>
         <div className="d-flex gap-2">
-          <button
-            type="button"
-            title="Xem thống kê người dùng"
-            aria-label="Người dùng"
-            aria-pressed={activeSection === "users"}
-            onClick={() => setActiveSection("users")}
-            className={`section-btn btn btn-sm d-flex align-items-center ${
-              activeSection === "users"
-                ? "active"
-                : "btn-outline-primary text-primary inactive"
-            }`}
-          >
-            <span className="icon" aria-hidden>
-              👤
-            </span>
-            <span>Người dùng</span>
-          </button>
+
 
           <button
             type="button"
@@ -579,37 +528,7 @@ export default function DashboardPage({ api }) {
       {/* Sections: Users, Events, Revenue */}
 
       {/* Users */}
-      {activeSection === "users" && (
-        <div className="mb-4">
-          <h5 className="fw-bold mb-3">Thống kê người dùng</h5>
-          <div
-            className="card p-3 mb-3 shadow-sm border-0"
-            style={{ borderRadius: "16px" }}
-          >
-            <StatCards
-              stats={[
-                {
-                  title: "KHÁCH HÀNG",
-                  value: userStats.customers.toLocaleString(),
-                },
-                {
-                  title: "BAN TỔ CHỨC",
-                  value: userStats.organizers.toLocaleString(),
-                },
-                {
-                  title: "NHÂN VIÊN",
-                  value: userStats.staffs.toLocaleString(),
-                },
-                {
-                  title: "TỔNG NGƯỜI DÙNG",
-                  value: userStats.total.toLocaleString(),
-                },
-              ]}
-              loading={userLoading}
-            />
-          </div>
-        </div>
-      )}
+
 
       {/* Events */}
       {activeSection === "events" && (
