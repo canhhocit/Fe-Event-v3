@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
-import { StatusBadge, COMMISSION_RATE } from "../../utils/helpers";
+import { StatusBadge } from "../../utils/helpers";
 import StatCards from "./StatCards";
 
 const STATUS_TRANSLATIONS = {
@@ -122,49 +122,29 @@ export default function DashboardPage({ api }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const now = new Date();
-        const monthLabels = [];
-        const monthKeys = [];
-        const monthlyProfit = [];
-
-        for (let i = -5; i <= 0; i++) {
-          const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-          const m = String(d.getMonth() + 1).padStart(2, "0");
-          const y = d.getFullYear();
-          monthLabels.push(`Th.${d.getMonth() + 1}/${y.toString().slice(-2)}`);
-          monthKeys.push(`${y}-${m}`);
-          monthlyProfit.push(0);
-        }
-
-        const [evRes, topEventsRes] = await Promise.all([
-          apiRef.current.get("/events/admin/all?size=1000"),
+        const [revenueRes, topEventsRes] = await Promise.all([
+          apiRef.current.get(
+            `/statistics-service-revenue/admin/${selectedYear}`,
+          ),
           apiRef.current.get(TOP_EVENTS_API_URL),
         ]);
 
-        const evList = evRes.result?.content ?? [];
+        const revenueData = revenueRes.result ?? revenueRes ?? {};
+        const monthlyRevenues = revenueData.monthlyRevenues ?? [];
 
-        evList.forEach((ev) => {
-          let eventRev = 0;
+        // Build month labels and extract revenue data
+        const monthLabels = [];
+        const monthlyRevenueData = [];
 
-          ev.ticketTypes?.forEach((tt) => {
-            const soldCount =
-              (Number(tt.totalQuantity) || 0) -
-              (Number(tt.remainingQuantity) || 0);
-            eventRev += soldCount * (Number(tt.price) || 0);
-          });
-
-          const dateStr = ev.startTime || ev.createdAt;
-          if (dateStr) {
-            const d = new Date(dateStr);
-            if (!isNaN(d.getTime())) {
-              const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-              const mIndex = monthKeys.indexOf(key);
-              if (mIndex !== -1) {
-                monthlyProfit[mIndex] += (eventRev * COMMISSION_RATE) / 1000000;
-              }
-            }
-          }
-        });
+        for (let month = 1; month <= 12; month++) {
+          monthLabels.push(`Th.${month}`);
+          const monthData = monthlyRevenues.find(
+            (m) => m.month === month && m.year === selectedYear,
+          );
+          monthlyRevenueData.push(
+            monthData ? Number(monthData.revenue) / 1000000 : 0,
+          );
+        }
 
         const topEventsPayload = topEventsRes?.result ?? topEventsRes ?? {};
         const topEventsList = Array.isArray(topEventsPayload?.events)
@@ -194,8 +174,8 @@ export default function DashboardPage({ api }) {
               labels: monthLabels,
               datasets: [
                 {
-                  label: "Lợi nhuận",
-                  data: monthlyProfit,
+                  label: "Doanh thu dịch vụ nền tảng",
+                  data: monthlyRevenueData,
                   borderColor: "#0984e3",
                   backgroundColor: "rgba(9, 132, 227, 0.15)",
                   fill: true,
@@ -212,7 +192,41 @@ export default function DashboardPage({ api }) {
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => {
+                      const currentValue = context.parsed.y;
+                      return `Doanh thu: ${currentValue.toFixed(2)}M VNĐ`;
+                    },
+                    afterLabel: (context) => {
+                      const currentIndex = context.dataIndex;
+
+                      // Get previous month value
+                      const previousValue =
+                        currentIndex > 0
+                          ? context.chart.data.datasets[0].data[
+                              currentIndex - 1
+                            ]
+                          : null;
+
+                      // Calculate percentage change if previous value exists
+                      if (previousValue !== null && previousValue > 0) {
+                        const currentValue = context.parsed.y;
+                        const percentChange =
+                          ((currentValue - previousValue) / previousValue) *
+                          100;
+                        const trend = percentChange >= 0 ? "📈" : "📉";
+                        const sign = percentChange >= 0 ? "+" : "";
+                        return `${trend} ${sign}${percentChange.toFixed(1)}% so với tháng trước`;
+                      }
+
+                      return "";
+                    },
+                  },
+                },
+              },
               scales: {
                 y: {
                   beginAtZero: true,
@@ -234,7 +248,7 @@ export default function DashboardPage({ api }) {
     return () => {
       if (salesChart) salesChart.destroy();
     };
-  }, [activeSection]);
+  }, [selectedYear, activeSection]);
 
   useEffect(() => {
     let statusChart = null;
@@ -545,7 +559,7 @@ export default function DashboardPage({ api }) {
           <button
             type="button"
             title="Xem thống kê doanh thu"
-            aria-label="Doanh thu"
+            aria-label="Doanh thu dịch vụ nền tảng"
             aria-pressed={activeSection === "revenue"}
             onClick={() => setActiveSection("revenue")}
             className={`section-btn btn btn-sm d-flex align-items-center ${
@@ -601,24 +615,24 @@ export default function DashboardPage({ api }) {
       {activeSection === "events" && (
         <div className="mb-4">
           <h5 className="fw-bold mb-3">Thống kê sự kiện</h5>
-          <div className="row g-4">
-            <div className="col-12 col-lg-6">
+          <div className="row g-4 justify-content-center">
+            <div className="col-12 col-lg-8 col-xl-6">
               <div
-                className="card p-3 h-100 shadow-sm border-0"
-                style={{ borderRadius: "16px" }}
+                className="card p-4 h-100 shadow-sm border-0"
+                style={{ borderRadius: "18px", minHeight: "460px" }}
               >
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex justify-content-between align-items-start mb-3 gap-3 flex-wrap">
                   <div>
                     <h6 className="fw-bold mb-1">Tỉ lệ trạng thái sự kiện</h6>
                   </div>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 flex-wrap">
                     <select
                       className="form-select form-select-sm"
                       value={selectedQuarter}
                       onChange={(e) =>
                         setSelectedQuarter(Number(e.target.value))
                       }
-                      style={{ minWidth: 90 }}
+                      style={{ minWidth: 96 }}
                     >
                       {getQuarterOptions().map((q) => (
                         <option key={q} value={q}>
@@ -630,7 +644,7 @@ export default function DashboardPage({ api }) {
                       className="form-select form-select-sm"
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(Number(e.target.value))}
-                      style={{ minWidth: 110 }}
+                      style={{ minWidth: 116 }}
                     >
                       {getYearOptions().map((y) => (
                         <option key={y} value={y}>
@@ -642,13 +656,13 @@ export default function DashboardPage({ api }) {
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <span className="badge bg-primary-subtle text-primary px-3 py-2">
-                    Tổng: {statusSummary.total.toLocaleString()}
+                    Tổng số sự kiện: {statusSummary.total.toLocaleString()}
                   </span>
                   {statusLoading && (
                     <small className="text-muted">Đang tải...</small>
                   )}
                 </div>
-                <div style={{ height: 220 }} className="position-relative">
+                <div style={{ height: 300 }} className="position-relative">
                   {statusLoading && (
                     <div className="position-absolute top-50 start-50 translate-middle small text-muted">
                       Đang tải biểu đồ...
@@ -740,6 +754,7 @@ export default function DashboardPage({ api }) {
               <table className="table table-hover align-middle mb-0">
                 <thead className="bg-light text-secondary small text-uppercase">
                   <tr>
+                    <th className="ps-4 py-3 border-0">Thứ tự</th>
                     <th className="px-4 py-3 border-0">Sự kiện</th>
                     <th className="border-0">Vé đã bán</th>
                     <th className="border-0">Tỷ lệ lấp chỗ</th>
@@ -750,31 +765,33 @@ export default function DashboardPage({ api }) {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-5 border-0">
+                      <td colSpan="6" className="text-center py-5 border-0">
                         Đang tải dữ liệu...
                       </td>
                     </tr>
                   ) : topEvents.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         className="text-center py-5 border-0 text-muted"
                       >
                         Chưa có dữ liệu sự kiện nổi bật.
                       </td>
                     </tr>
                   ) : (
-                    topEvents.map((ev) => {
+                    topEvents.map((ev, index) => {
                       const percent = Number.isFinite(Number(ev.occupancyRate))
                         ? Number(ev.occupancyRate)
                         : 0;
                       return (
                         <tr key={`${ev.eventName}-${ev.ticketsSold}`}>
+                          <td className="ps-4 border-0 fw-bold text-primary">
+                            {index + 1}
+                          </td>
                           <td className="px-4 border-0">
                             <div className="fw-bold text-dark">
                               {ev.eventName}
                             </div>
-                            <div className="text-muted small">Top nổi bật</div>
                           </td>
                           <td className="border-0 fw-bold text-primary">
                             {ev.ticketsSold.toLocaleString()}
@@ -828,7 +845,26 @@ export default function DashboardPage({ api }) {
             className="card p-3 shadow-sm border-0"
             style={{ borderRadius: "16px" }}
           >
-            <h6 className="fw-bold mb-3">Lợi nhuận hệ thống</h6>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h6 className="fw-bold mb-0">Doanh thu dịch vụ nền tảng</h6>
+              <div className="d-flex gap-2 align-items-center">
+                <label className="form-label mb-0 fw-medium text-secondary">
+                  Chọn năm:
+                </label>
+                <select
+                  className="form-select form-select-sm"
+                  style={{ width: "120px" }}
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                >
+                  {getYearOptions().map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="position-relative" style={{ height: 320 }}>
               <canvas ref={salesChartRef}></canvas>
             </div>
