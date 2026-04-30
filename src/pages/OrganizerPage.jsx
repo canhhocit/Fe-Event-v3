@@ -256,6 +256,24 @@ export default function OrganizerPage() {
   const handleEventSubmit = async (e) => {
     e.preventDefault();
 
+    const invalidTicketIndex = eventFormData.ticketTypes.findIndex((tt) => {
+      const price = Number(tt.price);
+      const totalQuantity = Number(tt.totalQuantity);
+      return (
+        !Number.isFinite(price) ||
+        !Number.isFinite(totalQuantity) ||
+        price <= 0 ||
+        totalQuantity <= 0
+      );
+    });
+
+    if (invalidTicketIndex !== -1) {
+      alert(
+        `⚠️ Loại vé thứ ${invalidTicketIndex + 1}: Giá vé và số lượng phải lớn hơn 0.`,
+      );
+      return;
+    }
+
     // Validate dates: saleStartDate < saleEndDate < startTime < endTime
     const sStart = new Date(eventFormData.saleStartDate);
     const sEnd = new Date(eventFormData.saleEndDate);
