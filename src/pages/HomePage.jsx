@@ -41,7 +41,7 @@ export default function HomePage() {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({ page: 1, size: 10 });
       Object.keys(filters).forEach(key => {
         if (filters[key]) {
           if (key === 'startDate' || key === 'endDate') {
@@ -51,7 +51,7 @@ export default function HomePage() {
           }
         }
       });
-      const res = await api.get(`/events?${params.toString()}`);
+      const res = await api.get(`/events/search?${params.toString()}`);
       setEvents(res.result?.content || []);
     } catch (err) {
       console.error(err);
@@ -154,7 +154,7 @@ export default function HomePage() {
                       style={{ height: "200px", objectFit: "cover" }}
                     />
                     <div className="card-body p-4">
-                       <span className="badge bg-primary-subtle text-primary rounded-pill px-3 mb-2">{event.categoryName}</span>
+                       <span className="badge bg-primary-subtle text-primary rounded-pill px-3 mb-2">{event.category?.name}</span>
                        <h5 className="card-title fw-bold mb-3">{event.name}</h5>
                        <div className="vstack gap-2 text-muted small mb-4">
                           <div>📍 {event.province} - {event.location}</div>
