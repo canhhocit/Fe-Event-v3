@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">🎟️ EVENT-MNG</Link>
+        <Link className="navbar-brand fw-bold" to="/">EVENT-MNG</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -21,11 +21,11 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link to="/cart" className="btn btn-outline-light position-relative">
-                  🛒 Giỏ hàng
+                  Giỏ hàng
                 </Link>
                 <div className="dropdown">
                   <button className="btn btn-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
-                    👤 {user.username}
+                    {user.username}
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                     {user.scope === "ADMIN" && <li><Link className="dropdown-menu-item dropdown-item" to="/admin">Admin Panel</Link></li>}

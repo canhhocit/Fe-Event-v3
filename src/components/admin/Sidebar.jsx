@@ -3,10 +3,11 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const MENU = [
-  { key: "dashboard", label: "Tổng quan" },
-  { key: "events", label: "Sự kiện" },
-  { key: "users", label: "Người dùng" },
-  { key: "categories", label: "Danh mục" },
+  { key: "dashboard", label: "Tổng quan", icon: "" },
+  { key: "events", label: "Sự kiện", icon: "" },
+  { key: "users", label: "Người dùng", icon: "" },
+  { key: "categories", label: "Danh mục", icon: "" },
+  { key: "blog", label: "Quản lý Blog", icon: "" },
 ];
 
 export default function Sidebar({ active, onSelect, onProfileClick }) {

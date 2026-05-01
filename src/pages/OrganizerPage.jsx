@@ -8,6 +8,7 @@ import TicketManager from "../components/organizer/TicketManager";
 import OrganizerProfile from "../components/organizer/OrganizerProfile";
 import StaffManager from "../components/organizer/StaffManager";
 import VoucherManager from "../components/organizer/VoucherManager";
+import BlogManager from "../components/organizer/BlogManager";
 
 export default function OrganizerPage() {
   const api = useApi();
@@ -430,6 +431,10 @@ export default function OrganizerPage() {
 
           {activeTab === "vouchers" && (
             <VoucherManager api={api} events={myEvents} />
+          )}
+
+          {activeTab === "blog" && (
+            <BlogManager api={api} myEvents={myEvents} />
           )}
 
           {activeTab === "profile" && (

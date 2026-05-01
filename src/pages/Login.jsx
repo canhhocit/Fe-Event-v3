@@ -149,7 +149,7 @@ export default function Login() {
         <div className="text-center mt-2">
           <a href="/forgot-password" className="text-muted small text-decoration-none">Quên mật khẩu?</a>
         </div>
-        <hr className="my-3 opacity-25" />
+        {/* <hr className="my-3 opacity-25" />
         <div className="text-center">
           <a 
             href="https://blog-guide-event-mng.vercel.app/" 
@@ -159,7 +159,7 @@ export default function Login() {
           >
             📕 Sổ tay hướng dẫn
           </a>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApi } from "../hooks/useApi";
 import Navbar from "../components/common/Navbar";
+import { MapPin, Calendar as CalendarIcon } from "lucide-react";
 
 const VIETNAM_PROVINCES = [
   "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", 
@@ -72,9 +73,7 @@ export default function HomePage() {
       {/* Hero Section with Search */}
       <div className="bg-primary pt-5 pb-5 text-white position-relative overflow-hidden" style={{ borderRadius: "0 0 50px 50px" }}>
         <div className="container py-5 text-center position-relative" style={{ zIndex: 2 }}>
-          <h1 className="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">Khám phá sự kiện sắp tới</h1>
-          <p className="lead mb-5 opacity-75">Tìm kiếm hàng ngàn sự kiện âm nhạc, hội thảo và thể thao</p>
-          
+          <h1 className="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">Khám phá sự kiện sắp tới</h1>          
           <div className="card shadow-lg p-4 border-0 mx-auto" style={{ maxWidth: "1000px", borderRadius: "30px", marginTop: "20px" }}>
             <form onSubmit={handleSearch}>
               <div className="row g-3">
@@ -141,7 +140,7 @@ export default function HomePage() {
         {loading ? (
           <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
         ) : events.length === 0 ? (
-          <div className="text-center py-5 card border-0 rounded-4">Chưa tìm thấy sự kiện nào khớp với yêu cầu của bạn. 😅</div>
+          <div className="text-center py-5 card border-0 rounded-4">Chưa tìm thấy sự kiện nào khớp với yêu cầu của bạn.</div>
         ) : (
           <div className="row g-4 text-start">
             {events.map((event) => (
@@ -157,8 +156,12 @@ export default function HomePage() {
                        <span className="badge bg-primary-subtle text-primary rounded-pill px-3 mb-2">{event.category?.name}</span>
                        <h5 className="card-title fw-bold mb-3">{event.name}</h5>
                        <div className="vstack gap-2 text-muted small mb-4">
-                          <div>📍 {event.province} - {event.location}</div>
-                          <div>📅 {new Date(event.startTime).toLocaleDateString('vi-VN')}</div>
+                          <div className="d-flex align-items-center gap-2">
+                             <MapPin size={14} className="text-primary" /> {event.province} - {event.location}
+                          </div>
+                          <div className="d-flex align-items-center gap-2">
+                             <CalendarIcon size={14} className="text-primary" /> {new Date(event.startTime).toLocaleDateString('vi-VN')}
+                          </div>
                           <div className="fw-bold text-dark fs-5 mt-2">
                              {event.ticketTypes?.[0] ? `${event.ticketTypes[0].price.toLocaleString()}đ` : "Sắp mở bán"}
                           </div>
