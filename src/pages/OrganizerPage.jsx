@@ -78,11 +78,7 @@ export default function OrganizerPage() {
 
   const fetchDashData = async () => {
     try {
-      const [statsRes, eventsRes] = await Promise.all([
-        api.get("/events/organizer/stats"),
-        api.get("/events/organizer/my-events"),
-      ]);
-      setStats(statsRes.result);
+      const eventsRes = await api.get("/events/organizer/my-events");
       setMyEvents(eventsRes.result?.content || []);
       setDashError("");
     } catch (err) {
@@ -169,11 +165,10 @@ export default function OrganizerPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [categoriesRes, profileRes, statsRes, eventsRes] =
+        const [categoriesRes, profileRes, eventsRes] =
           await Promise.all([
             api.get("/categories"),
             api.get("/users/my-info"),
-            api.get("/events/organizer/stats"),
             api.get("/events/organizer/my-events"),
           ]);
 
@@ -199,7 +194,6 @@ export default function OrganizerPage() {
         );
 
         setStats({
-          ...(statsRes.result || {}),
           monthlyRevenues: revenueStats.monthlyRevenues,
           revenueYear: revenueStats.revenueYear,
           revenueOverview,
