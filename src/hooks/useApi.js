@@ -11,8 +11,7 @@ export const useApi = () => {
 };
 
 export const getImageUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  // Trỏ về đường dẫn lấy ảnh của backend (chuẩn Microservices)
-  return `http://localhost:8080/images/${path}`;
+  if (!path) return "https://via.placeholder.com/150";
+  const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  return `${BASE}/images/${path}`;
 };
